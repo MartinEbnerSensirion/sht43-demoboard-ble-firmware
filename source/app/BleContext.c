@@ -65,7 +65,7 @@
 
 /// These are the two tags used to manage a power failure during OTA
 /// The MagicKeywordAdress shall be mapped @0x140 from start of the binary image
-/// The MagicKeywordvalue is checked in the sht33_ota application
+/// The MagicKeywordvalue is checked in the sht43_ota application
 
 /// value of the magic keyword that is looked up by the OTA loader
 #define MAGIC_OTA_KEYWORD 0x94448A29

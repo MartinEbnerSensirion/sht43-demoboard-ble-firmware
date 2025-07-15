@@ -144,7 +144,7 @@ static bool AppPairingStateCb(Message_Message_t* msg);
 /// @return bool if the message was handled, false otherwise
 static bool EvalBatteryEventCb(Message_Message_t* msg);
 
-/// Default screen that displays the actual state from SHT33 demo board when
+/// Default screen that displays the actual state from sht43 demo board when
 /// the application is up and running. This includes the sensor measurement
 /// values, battery state information and more.
 ///
@@ -596,7 +596,7 @@ static void LogRhtValues(Presentation_Controller_t* controller) {
   int tempInt = (int)controller->temperatureC;
   int tempDec = (int)((controller->temperatureC - (float)tempInt + 0.5f) * 100);
   LOG_INFO(
-      "SHT33 read out -> "
+      "SHT3x read out -> "
       "\tTemperature = %i.%i; Humidity = %i.%i\n",
       tempInt, tempDec, humidityInt, humidityDec);
 }
