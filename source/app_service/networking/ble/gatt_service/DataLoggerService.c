@@ -46,8 +46,8 @@
 
 #include <math.h>
 
-/// Sample type of SHT4x data logger frames
-#define SHT4x_SAMPLE_TYPE 0x5
+/// Sample type of SHT3x data logger frames
+#define SHT3x_SAMPLE_TYPE 0x5
 /// Offset of the sample type in data logger frame[0]
 #define SAMPLE_TYPE_OFFSET 0x4
 /// Offset of metadata in data logger frame[0]
@@ -386,7 +386,7 @@ SVCCTL_EvtAckStatus_t WriteRequestedSamples(uint16_t currentConnection,
 void DataLoggerService_BuildHeaderFrame(uint8_t txFrameBuffer[TX_FRAME_SIZE],
                                         BleTypes_SamplesMetaData_t* metadata) {
   memset(txFrameBuffer, 0, TX_FRAME_SIZE);
-  SET_UINT16(txFrameBuffer, SHT4x_SAMPLE_TYPE, SAMPLE_TYPE_OFFSET);
+  SET_UINT16(txFrameBuffer, SHT3x_SAMPLE_TYPE, SAMPLE_TYPE_OFFSET);
   SET_MEM(txFrameBuffer, metadata, METADATA_OFFSET,
           sizeof(BleTypes_SamplesMetaData_t));
 }

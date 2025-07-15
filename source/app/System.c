@@ -51,7 +51,7 @@
 #include "app_service/power_manager/PowerManager.h"
 #include "app_service/screen/Screen.h"
 #include "app_service/sensor/SensorController.h"
-#include "app_service/sensor/Sht4x.h"
+#include "app_service/sensor/Sht3x.h"
 #include "app_service/timer_server/TimerServer.h"
 #include "app_service/user_button/Button.h"
 #include "app_service/user_button/ButtonEvent.h"
@@ -121,7 +121,7 @@ void System_Init(void) {
   // messages
   InitMessageBroker(
       &_appMessageBroker, 8, SysTest_TestControllerInstance(),
-      BatteryMonitor_Instance(), SensorController_Sht4xControllerInstance(),
+      BatteryMonitor_Instance(), SensorController_Sht3xControllerInstance(),
       BleContext_BridgeInstance(), Presentation_ControllerInstance(),
       ItemStore_ListenerInstance(), MeasurementItemController_Instance(),
       SettingsController_Instance());
@@ -155,7 +155,7 @@ void System_Init(void) {
 
   LOG_DEBUG("%s\n", "} SUCCESS!\n");
 
-  Sht4x_Init(&_appMessageBroker.broker);
+  Sht3x_Init(&_appMessageBroker.broker);
 
   Uart_RegisterRxHandler(SysTest_GetUartReceiver());
 

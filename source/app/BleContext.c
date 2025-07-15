@@ -51,7 +51,7 @@
 #include "app_service/networking/ble/gatt_service/TemperatureService.h"
 #include "app_service/nvm/ProductionParameters.h"
 #include "app_service/power_manager/BatteryMonitor.h"
-#include "app_service/sensor/Sht4x.h"
+#include "app_service/sensor/Sht3x.h"
 #include "app_service/user_button/Button.h"
 #include "hal/Clock.h"
 #include "shci.h"
@@ -65,7 +65,7 @@
 
 /// These are the two tags used to manage a power failure during OTA
 /// The MagicKeywordAdress shall be mapped @0x140 from start of the binary image
-/// The MagicKeywordvalue is checked in the sht43_ota application
+/// The MagicKeywordvalue is checked in the sht33_ota application
 
 /// value of the magic keyword that is looked up by the OTA loader
 #define MAGIC_OTA_KEYWORD 0x94448A29
@@ -460,25 +460,19 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(
 static bool BleDefaultStateCb(Message_Message_t* message) {
   // notify new sensor values
   if (message->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE &&
-      message->header.id == SHT4X_MESSAGE_ID_SENSOR_DATA) {
-    Sht4x_SensorMessage_t* sensorMsg = (Sht4x_SensorMessage_t*)message;
-    if (message->header.parameter1 == SHT4X_COMMAND_READ_SERIAL_NUMBER) {
-      ShtService_SetSerialNumber(sensorMsg->data.serialNumer);
-    } else {
-      gCompleteAdvData.temperatureTicks =
-          sensorMsg->data.measurement.temperatureTicks;
-      gCompleteAdvData.humidityTicks =
-          sensorMsg->data.measurement.humidityTicks;
-      /// this does not change the advertisement mode
+      message->header.id == SHT3X_MESSAGE_ID_SENSOR_DATA) {
+    Sht3x_SensorMessage_t* sensorMsg = (Sht3x_SensorMessage_t*)message;
 
-      BleGap_AdvertiseRequest(&gBleApplicationContext,
-                              gBleApplicationContext.currentAdvertisementMode);
-
-      TemperatureService_SetTemperature(Sht4x_TicksToTemperatureCelsius(
-          sensorMsg->data.measurement.temperatureTicks));
-      HumidityService_SetHumidity(
-          Sht4x_TicksToHumidity(sensorMsg->data.measurement.humidityTicks));
-    }
+    gCompleteAdvData.temperatureTicks =
+        sensorMsg->data.measurement.temperatureTicks;
+    gCompleteAdvData.humidityTicks = sensorMsg->data.measurement.humidityTicks;
+    /// this does not change the advertisement mode
+    BleGap_AdvertiseRequest(&gBleApplicationContext,
+                            gBleApplicationContext.currentAdvertisementMode);
+    TemperatureService_SetTemperature(Sht3x_TicksToTemperatureCelsius(
+        sensorMsg->data.measurement.temperatureTicks));
+    HumidityService_SetHumidity(
+        Sht3x_TicksToHumidity(sensorMsg->data.measurement.humidityTicks));
     return true;
   }
 
@@ -586,7 +580,7 @@ static bool ForwardToBleAppCb(Message_Message_t* message) {
   }
 
   if (message->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE &&
-      message->header.id == SHT4X_MESSAGE_ID_SENSOR_DATA) {
+      message->header.id == SHT3X_MESSAGE_ID_SENSOR_DATA) {
     BleInterface_PublishBleMessage(message);
     return true;
   }

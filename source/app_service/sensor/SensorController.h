@@ -58,6 +58,6 @@ typedef struct _tSensorController_Controller {
 /// Initializes the sensor controller upon the first call
 /// This instance is kept even when entering low-power
 /// @return The initialized Instance of the sensor controller
-SensorController_Controller_t* SensorController_Sht4xControllerInstance();
+SensorController_Controller_t* SensorController_Sht3xControllerInstance();
 
 #endif  // SENSOR_CONTROLLER_H

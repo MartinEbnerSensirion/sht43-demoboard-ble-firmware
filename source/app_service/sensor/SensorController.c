@@ -38,7 +38,7 @@
 
 #include "SensorController.h"
 
-#include "Sht4x.h"
+#include "Sht3x.h"
 #include "app_conf.h"
 #include "app_service/timer_server/TimerServer.h"
 #include "hal/Crc.h"
@@ -113,31 +113,24 @@ static void HandleError(uint32_t errorCode);
 static uint8_t _resetTimer;
 
 /// State machine instance of sensor controller
-static SensorController_Controller_t _sht4xController = {
+static SensorController_Controller_t _sht3xController = {
     .consecutiveErrors = 0,
     .listener.currentMessageHandlerCb = IdleStateCb,
     .listener.receiveMask = MESSAGE_BROKER_CATEGORY_SYSTEM_STATE_CHANGE |
                             MESSAGE_BROKER_CATEGORY_SENSOR_VALUE |
                             MESSAGE_BROKER_CATEGORY_TIME_INFORMATION};
 
-SensorController_Controller_t* SensorController_Sht4xControllerInstance() {
+SensorController_Controller_t* SensorController_Sht3xControllerInstance() {
   _resetTimer =
       TimerServer_CreateTimer(TIMER_SERVER_MODE_SINGLE_SHOT, SetIdleState);
-  return &_sht4xController;
+  return &_sht3xController;
 }
 
 static bool IdleStateCb(Message_Message_t* msg) {
-  if (msg->header.category == MESSAGE_BROKER_CATEGORY_SYSTEM_STATE_CHANGE &&
-      msg->header.id == MESSAGE_ID_BLE_SUBSYSTEM_READY) {
-    Sht4x_StartRequest(SHT4X_COMMAND_READ_SERIAL_NUMBER);
-    _sht4xController.listener.currentMessageHandlerCb =
-        ShtRequestStartedStateCb;
-    return true;
-  }
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_TIME_INFORMATION &&
       msg->header.id == MESSAGE_ID_TIME_INFO_TIME_ELAPSED) {
-    Sht4x_StartRequest(SHT4X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT);
-    _sht4xController.listener.currentMessageHandlerCb =
+    Sht3x_StartRequest(SHT3X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT);
+    _sht3xController.listener.currentMessageHandlerCb =
         ShtRequestStartedStateCb;
 
     return true;
@@ -147,16 +140,16 @@ static bool IdleStateCb(Message_Message_t* msg) {
 
 static bool ShtRequestStartedStateCb(Message_Message_t* msg) {
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE) {
-    if (msg->header.id == SHT4X_MESSAGE_ID_REQUEST_SENT) {
+    if (msg->header.id == SHT3X_MESSAGE_ID_REQUEST_SENT) {
       // A successful i2c write took place. Hence we reset
       // the counter for successive i2c errors
-      _sht4xController.consecutiveErrors = 0;
-      Sht4x_NotifySensorReady();
+      _sht3xController.consecutiveErrors = 0;
+      Sht3x_NotifySensorReady();
       return true;
     }
-    if (msg->header.id == SHT4X_MESSAGE_ID_SENSOR_READY) {
-      Sht4x_ReadRequestData();
-      _sht4xController.listener.currentMessageHandlerCb =
+    if (msg->header.id == SHT3X_MESSAGE_ID_SENSOR_READY) {
+      Sht3x_ReadRequestData();
+      _sht3xController.listener.currentMessageHandlerCb =
           ShtRequestReadingStateCb;
       return true;
     }
@@ -177,8 +170,8 @@ static bool ShtRequestStartedStateCb(Message_Message_t* msg) {
 static bool ShtRequestRestartedCb(Message_Message_t* msg) {
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_TIME_INFORMATION) {
     if (msg->header.id == MESSAGE_ID_TIME_INFO_TIME_ELAPSED) {
-      Sht4x_ReadRequestData();
-      _sht4xController.listener.currentMessageHandlerCb =
+      Sht3x_ReadRequestData();
+      _sht3xController.listener.currentMessageHandlerCb =
           ShtRequestReadingStateCb;
       return true;
     }
@@ -193,14 +186,14 @@ static bool ShtRequestRestartedCb(Message_Message_t* msg) {
 
 static bool ShtRequestReadingStateCb(Message_Message_t* msg) {
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE) {
-    if (msg->header.id == SHT4X_MESSAGE_ID_SENSOR_DATA) {
-      _sht4xController.consecutiveErrors = 0;
-      Sht4x_StartRequest(SHT4X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT);
-      _sht4xController.listener.currentMessageHandlerCb = ShtRequestRestartedCb;
+    if (msg->header.id == SHT3X_MESSAGE_ID_SENSOR_DATA) {
+      _sht3xController.consecutiveErrors = 0;
+      Sht3x_StartRequest(SHT3X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT);
+      _sht3xController.listener.currentMessageHandlerCb = ShtRequestRestartedCb;
 
       return true;
     }
-    if (msg->header.id == SHT4X_MESSAGE_ID_ERROR) {
+    if (msg->header.id == SHT3X_MESSAGE_ID_ERROR) {
       HandleError(ERROR_CODE_SENSOR_READOUT);
       return true;
     }
@@ -221,7 +214,7 @@ static bool ShtRequestReadingStateCb(Message_Message_t* msg) {
 static bool ShtErrorHandlerCb(Message_Message_t* msg) {
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_SYSTEM_STATE_CHANGE) {
     if (msg->header.id == MESSAGE_ID_GENERAL_CALL_RESET) {
-      _sht4xController.consecutiveErrors = 0;
+      _sht3xController.consecutiveErrors = 0;
       // this will switch to idle state after 30 ms
       TimerServer_Start(_resetTimer, 30);
       return true;
@@ -241,13 +234,13 @@ static bool ShtErrorHandlerCb(Message_Message_t* msg) {
 
 static void HandleError(uint32_t errorCode) {
   // make sure that no history is pending
-  _sht4xController.activeReminder = false;
+  _sht3xController.activeReminder = false;
   // reset the i2c block
   I2c3_Release(true);
-  _sht4xController.consecutiveErrors += 1;
-  if (_sht4xController.consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+  _sht3xController.consecutiveErrors += 1;
+  if (_sht3xController.consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
     static uint8_t _reset[] = {0x06};
-    _sht4xController.listener.currentMessageHandlerCb = ShtErrorHandlerCb;
+    _sht3xController.listener.currentMessageHandlerCb = ShtErrorHandlerCb;
     I2c3_Write(0x00, _reset, 1, GeneralCallResetSentCb);
     return;
   }
@@ -258,7 +251,7 @@ static void HandleError(uint32_t errorCode) {
 static void SetReminderIfNeeded(Message_Message_t* msg) {
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_SYSTEM_STATE_CHANGE &&
       msg->header.id == MESSAGE_ID_BLE_SUBSYSTEM_READY) {
-    _sht4xController.activeReminder = true;
+    _sht3xController.activeReminder = true;
     memcpy(&_reminder, msg, sizeof(_reminder));
   }
 }
@@ -275,9 +268,9 @@ static void GeneralCallResetSentCb() {
 
 static void SetIdleState() {
   Crc_Disable();
-  _sht4xController.listener.currentMessageHandlerCb = IdleStateCb;
-  if (_sht4xController.activeReminder) {
-    _sht4xController.listener.currentMessageHandlerCb(&_reminder);
-    _sht4xController.activeReminder = false;
+  _sht3xController.listener.currentMessageHandlerCb = IdleStateCb;
+  if (_sht3xController.activeReminder) {
+    _sht3xController.listener.currentMessageHandlerCb(&_reminder);
+    _sht3xController.activeReminder = false;
   }
 }

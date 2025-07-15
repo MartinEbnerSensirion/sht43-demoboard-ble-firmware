@@ -31,12 +31,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @file Sht4x.h
+/// @file Sht3x.h
 ///
-/// Header file to all functions to read the SHT4x Sensor data and process it
+/// Header file to all functions to read the SHT3x Sensor data and process it
 
-#ifndef SHT4X_H
-#define SHT4X_H
+#ifndef SHT3X_H
+#define SHT3X_H
 
 #include "assert.h"
 #include "utility/StaticCodeAnalysisHelper.h"
@@ -45,25 +45,24 @@
 /// These are the ids of the message category
 /// MESSAGE_BROKER_CATEGORY_SENSOR_VALUE
 typedef enum {
-  SHT4X_MESSAGE_ID_REQUEST_SENT,  /// The request completed successfully
-  SHT4X_MESSAGE_ID_SENSOR_READY,  /// The wait time for the request has elapsed
-  SHT4X_MESSAGE_ID_SENSOR_DATA,   /// The message contains the read sensor data
-  SHT4X_MESSAGE_ID_ERROR          /// Something went wrong
-} Sht4x_MessageId_t;
+  SHT3X_MESSAGE_ID_REQUEST_SENT,  /// The request completed successfully
+  SHT3X_MESSAGE_ID_SENSOR_READY,  /// The wait time for the request has elapsed
+  SHT3X_MESSAGE_ID_SENSOR_DATA,   /// The message contains the read sensor data
+  SHT3X_MESSAGE_ID_ERROR          /// Something went wrong
+} Sht3x_MessageId_t;
 
-/// Defines the commands that can be handled by the SHT4x sensor
+/// Defines the commands that can be handled by the SHT3x sensor
 typedef enum {
-  SHT4X_COMMAND_READ_SERIAL_NUMBER,
-  SHT4X_COMMAND_LOW_REPEATABILITY_MEASUREMENT,
-  SHT4X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT
-} Sht4x_Commands_t;
+  SHT3X_COMMAND_LOW_REPEATABILITY_MEASUREMENT,
+  SHT3X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT
+} Sht3x_Commands_t;
 
 /// This is the data that is received in response to a
 /// communication with the sensor
-typedef struct _tSht4x_SensorMessage {
+typedef struct _tSht3x_SensorMessage {
   MessageBroker_MsgHead_t head;  ///< Message head:
                                  ///< Id will be set to a value
-                                 ///< of @ref Sht4x_MessageId_t.
+                                 ///< of @ref Sht3x_MessageId_t.
                                  ///< The category will be set to SENSOR_VALUE
                                  ///< The param1 will contain the sent command
   union {
@@ -71,57 +70,56 @@ typedef struct _tSht4x_SensorMessage {
       uint16_t temperatureTicks;  ///< measured temperature
       uint16_t humidityTicks;     ///< measured humidity
     } measurement;                ///< Sensor measurement values
-    uint32_t serialNumer;         ///< The read serial number
     uint32_t errorCode;           ///< number of the error if error occurred
   } data;  ///< The data needs to be interpreted depending on the message id in
            ///< head.id.
-           ///< - id == SHT4X_MESSAGE_ID_REQUEST_SENT: data is invalid
-           ///< - id == SHT4X_SENSOR_READY: data is invalid
-           ///< - id == SHT4X_MESSAGE_ID_SENSOR_DATA: depending on param1 the
-           ///<      message contains the measurement data or the serial number
-} Sht4x_SensorMessage_t;
+           ///< - id == SHT3X_MESSAGE_ID_REQUEST_SENT: data is invalid
+           ///< - id == SHT3X_SENSOR_READY: data is invalid
+           ///< - id == SHT3X_MESSAGE_ID_SENSOR_DATA: depending on param1 the
+           ///<      message contains the measurement data
+} Sht3x_SensorMessage_t;
 
-ASSERT_SIZE_TYPE1_LESS_THAN_TYPE2(Sht4x_SensorMessage_t, uint64_t);
+ASSERT_SIZE_TYPE1_LESS_THAN_TYPE2(Sht3x_SensorMessage_t, uint64_t);
 
-/// Initialize the SHT4x Sensor
+/// Initialize the SHT3x Sensor
 ///
 /// @param broker The message broker that where all messages are published
-void Sht4x_Init(MessageBroker_Broker_t* broker);
+void Sht3x_Init(MessageBroker_Broker_t* broker);
 
 /// Trigger a sensor request
 /// @param command id of the request to be triggered
-void Sht4x_StartRequest(Sht4x_Commands_t command);
+void Sht3x_StartRequest(Sht3x_Commands_t command);
 
 /// The sensor shall publish a message when the
 /// current executing command has finished.
 ///
-void Sht4x_NotifySensorReady();
+void Sht3x_NotifySensorReady();
 
 /// Get the previously requested data
-void Sht4x_ReadRequestData();
+void Sht3x_ReadRequestData();
 
 /// Convert ticks from the SHT to temperature in [°C]
 ///
 /// @param ticks  Temperature value in ticks
 /// @return Temperature measured by the SHT in [°C]
-float Sht4x_TicksToTemperatureCelsius(uint16_t ticks);
+float Sht3x_TicksToTemperatureCelsius(uint16_t ticks);
 
 /// Convert ticks from the SHT to temperature in [°F]
 ///
 /// @param ticks  Temperature value in ticks
 /// @return Temperature measured by the SHT in [°F]
-float Sht4x_TicksToTemperatureFahrenheit(uint16_t ticks);
+float Sht3x_TicksToTemperatureFahrenheit(uint16_t ticks);
 
 /// Convert ticks from the SHT to relative humidity in [%rH]
 ///
 /// @param ticks  Relative humidity value in ticks
 /// @return Humidity measured by the SHT in [%rH]
-float Sht4x_TicksToHumidity(uint16_t ticks);
+float Sht3x_TicksToHumidity(uint16_t ticks);
 
 /// Calculate the dew point from temperature and relative humidity
 /// @param temperatureC Temperature in celsius
 /// @param humidityRh Relative humidity in %
 /// @return computed dew point
-float Sht4x_DewPointC(float temperatureC, float humidityRh);
+float Sht3x_DewPointC(float temperatureC, float humidityRh);
 
-#endif  // SHT4X_H
+#endif  // SHT3X_H

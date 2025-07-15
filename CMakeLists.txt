@@ -133,7 +133,7 @@ set(APP_SOURCES
     source/app_service/power_manager/LpmHooks.c
     source/app_service/power_manager/SchedulerOverride.c
     source/app_service/power_manager/BatteryMonitor.c
-    source/app_service/sensor/Sht4x.c
+    source/app_service/sensor/Sht3x.c
     source/app_service/screen/Screen.c
     source/app_service/sensor/SensorController.c
     source/app_service/nvm/ProductionParameters.c

@@ -37,7 +37,7 @@
 #include "ItemStore.h"
 #include "app_service/networking/ble/BleGatt.h"
 #include "app_service/networking/ble/BleInterface.h"
-#include "app_service/sensor/Sht4x.h"
+#include "app_service/sensor/Sht3x.h"
 #include "utility/AppDefines.h"
 #include "utility/ErrorHandler.h"
 #include "utility/log/Log.h"
@@ -112,7 +112,7 @@ static bool ItemStoreIdleState(Message_Message_t* message);
 
 /// Update the moving average for humidity and temperature
 /// @param message message to be processed
-static void UpdateMovingAverage(Sht4x_SensorMessage_t* message);
+static void UpdateMovingAverage(Sht3x_SensorMessage_t* message);
 
 /// Update the sample value if a full logging interval has elapsed
 /// @param msg The message with the amount of elapsed seconds
@@ -176,9 +176,8 @@ MessageListener_Listener_t* MeasurementItemController_Instance() {
 static bool ItemStoreIdleState(Message_Message_t* msg) {
   // receive a new measurement value
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE &&
-      msg->header.id == SHT4X_MESSAGE_ID_SENSOR_DATA &&
-      msg->header.parameter1 > SHT4X_COMMAND_READ_SERIAL_NUMBER) {
-    UpdateMovingAverage((Sht4x_SensorMessage_t*)msg);
+      msg->header.id == SHT3X_MESSAGE_ID_SENSOR_DATA) {
+    UpdateMovingAverage((Sht3x_SensorMessage_t*)msg);
     return true;
   }
   if (msg->header.category == MESSAGE_BROKER_CATEGORY_SYSTEM_STATE_CHANGE) {
@@ -244,7 +243,7 @@ static bool ItemStoreIdleState(Message_Message_t* msg) {
   return false;
 }
 
-static void UpdateMovingAverage(Sht4x_SensorMessage_t* msg) {
+static void UpdateMovingAverage(Sht3x_SensorMessage_t* msg) {
   _measurementItemController.humidityAverage =
       _measurementItemController.coefficient[0] *
           _measurementItemController.humidityAverage +

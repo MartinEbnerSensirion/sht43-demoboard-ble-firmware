@@ -44,7 +44,7 @@
 #include "app_service/nvm/ProductionParameters.h"
 #include "app_service/power_manager/BatteryMonitor.h"
 #include "app_service/screen/Screen.h"
-#include "app_service/sensor/Sht4x.h"
+#include "app_service/sensor/Sht3x.h"
 #include "app_service/timer_server/TimerServer.h"
 #include "app_service/user_button/Button.h"
 #include "hal/Uart.h"
@@ -65,7 +65,7 @@
 /// Defines the timeout in seconds when the pairing is aborted
 #define PAIRING_TIMEOUT_S 30
 /// Timer ID sensor readout trigger timer
-static uint8_t _sht4xReadoutTimer;
+static uint8_t _sht3xReadoutTimer;
 
 /// The time in seconds between two successive TIME_ELAPSES messages
 /// Initially this delta is set to one seconds.
@@ -144,7 +144,7 @@ static bool AppPairingStateCb(Message_Message_t* msg);
 /// @return bool if the message was handled, false otherwise
 static bool EvalBatteryEventCb(Message_Message_t* msg);
 
-/// Default screen that displays the actual state from SHT43 demo board when
+/// Default screen that displays the actual state from SHT33 demo board when
 /// the application is up and running. This includes the sensor measurement
 /// values, battery state information and more.
 ///
@@ -198,7 +198,7 @@ static void DisplayDewPointOnScreen(float temperature, float relativeHumidity);
 /// @param controller pointer to presentation controller
 /// @param msg message that contains the new values
 static void HandleNewSensorValues(Presentation_Controller_t* controller,
-                                  Sht4x_SensorMessage_t* msg);
+                                  Sht3x_SensorMessage_t* msg);
 
 /// Display the error screen and stay in infinite loop
 /// @param errorCode Error code to be displayed on the screen
@@ -260,8 +260,8 @@ MessageListener_Listener_t* Presentation_ControllerInstance() {
 // used for testing and current consumption evaluations
 void Presentation_setTimeStep(uint8_t timeStepSeconds) {
   _timeStepDeltaSeconds = timeStepSeconds;
-  TimerServer_Stop(_sht4xReadoutTimer);
-  TimerServer_Start(_sht4xReadoutTimer, _timeStepDeltaSeconds * 1000);
+  TimerServer_Stop(_sht3xReadoutTimer);
+  TimerServer_Start(_sht3xReadoutTimer, _timeStepDeltaSeconds * 1000);
 }
 
 static bool AppBootStateCb(Message_Message_t* msg) {
@@ -312,9 +312,8 @@ static bool AppShowVersionStateCb(Message_Message_t* msg) {
 
 static bool AppNormalOperationStateCb(Message_Message_t* msg) {
   if ((msg->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE) &&
-      (msg->header.id == SHT4X_MESSAGE_ID_SENSOR_DATA) &&
-      (msg->header.parameter1 != SHT4X_COMMAND_READ_SERIAL_NUMBER)) {
-    HandleNewSensorValues(&_controller, (Sht4x_SensorMessage_t*)msg);
+      (msg->header.id == SHT3X_MESSAGE_ID_SENSOR_DATA)) {
+    HandleNewSensorValues(&_controller, (Sht3x_SensorMessage_t*)msg);
     return true;
   }
   if ((msg->header.category == MESSAGE_BROKER_CATEGORY_TIME_INFORMATION) &&
@@ -394,13 +393,13 @@ static bool HandleSystemStateChange(Message_Message_t* msg) {
   if (msg->header.id == MESSAGE_ID_PERIPHERALS_INITIALIZED) {
     _controller.uptimeSeconds = 0;
     _controller.uptimeSecondsSinceUserEvent = 0;
-    _sht4xReadoutTimer = TimerServer_CreateTimer(TIMER_SERVER_MODE_REPEATED,
+    _sht3xReadoutTimer = TimerServer_CreateTimer(TIMER_SERVER_MODE_REPEATED,
                                                  PublishAppTimeTickCb);
 
     _controller.blinkTimer = TimerServer_CreateTimer(TIMER_SERVER_MODE_REPEATED,
                                                      ToggleBatteryLowSymbol);
 
-    TimerServer_Start(_sht4xReadoutTimer, _timeStepDeltaSeconds * 1000);
+    TimerServer_Start(_sht3xReadoutTimer, _timeStepDeltaSeconds * 1000);
     // At this point we are sure that the peripherals are up and running.
     // Now it is save to show the Firmware version.
     // We have to make sure that the firmware version is logged before the log
@@ -432,12 +431,11 @@ static bool HandleSystemStateChange(Message_Message_t* msg) {
 
 static bool AppPairingStateCb(Message_Message_t* msg) {
   if ((msg->header.category == MESSAGE_BROKER_CATEGORY_SENSOR_VALUE) &&
-      (msg->header.id == SHT4X_MESSAGE_ID_SENSOR_DATA) &&
-      (msg->header.parameter1 != SHT4X_COMMAND_READ_SERIAL_NUMBER)) {
-    Sht4x_SensorMessage_t* shtMessage = (Sht4x_SensorMessage_t*)msg;
+      (msg->header.id == SHT3X_MESSAGE_ID_SENSOR_DATA)) {
+    Sht3x_SensorMessage_t* shtMessage = (Sht3x_SensorMessage_t*)msg;
     _controller.humidity =
-        Sht4x_TicksToHumidity(shtMessage->data.measurement.humidityTicks);
-    _controller.temperatureC = Sht4x_TicksToTemperatureCelsius(
+        Sht3x_TicksToHumidity(shtMessage->data.measurement.humidityTicks);
+    _controller.temperatureC = Sht3x_TicksToTemperatureCelsius(
         shtMessage->data.measurement.temperatureTicks);
     LogRhtValues(&_controller);
     return true;
@@ -579,7 +577,7 @@ static void DisplayDewPointOnScreen(float temperature, float relativeHumidity) {
   Screen_DisplaySymbolCb_t rowTop[] = {
       Screen_DisplaySymbol4, Screen_DisplaySymbol3, Screen_DisplaySymbol2,
       Screen_DisplaySymbol1};
-  float dewPoint = Sht4x_DewPointC(temperature, relativeHumidity);
+  float dewPoint = Sht3x_DewPointC(temperature, relativeHumidity);
   Screen_DisplayFourDigits(_controller.TemperatureConversionCb(dewPoint) * 100,
                            rowTop, Screen_DisplayMinusTop);
   Screen_DisplayPoint2(true);
@@ -598,18 +596,18 @@ static void LogRhtValues(Presentation_Controller_t* controller) {
   int tempInt = (int)controller->temperatureC;
   int tempDec = (int)((controller->temperatureC - (float)tempInt + 0.5f) * 100);
   LOG_INFO(
-      "SHT43 read out -> "
+      "SHT33 read out -> "
       "\tTemperature = %i.%i; Humidity = %i.%i\n",
       tempInt, tempDec, humidityInt, humidityDec);
 }
 
 static void HandleNewSensorValues(Presentation_Controller_t* controller,
-                                  Sht4x_SensorMessage_t* msg) {
+                                  Sht3x_SensorMessage_t* msg) {
   controller->humidity =
-      Sht4x_TicksToHumidity(msg->data.measurement.humidityTicks);
+      Sht3x_TicksToHumidity(msg->data.measurement.humidityTicks);
 
   controller->temperatureC =
-      Sht4x_TicksToTemperatureCelsius(msg->data.measurement.temperatureTicks);
+      Sht3x_TicksToTemperatureCelsius(msg->data.measurement.temperatureTicks);
   DisplayNormalOperationScreen(controller);
   LogRhtValues(controller);
 }

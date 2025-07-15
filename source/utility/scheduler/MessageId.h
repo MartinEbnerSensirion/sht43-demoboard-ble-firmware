@@ -36,7 +36,7 @@
 /// Defines the message ids for each category that is not clearly associated
 /// to a specific module.
 /// The message id's of the following categories are defined in another header:
-/// - Category SensorValue: Sht4x.h
+/// - Category SensorValue: Sht3x.h
 /// - Category ButtonEvent: Button.h
 /// - Category Test: SysTest.h
 ///

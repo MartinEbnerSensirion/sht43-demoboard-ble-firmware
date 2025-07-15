@@ -124,7 +124,7 @@ typedef union _tBleTypes_AdvertisementMode {
   uint16_t compare;              ///< for easy comparison of two modes
 } BleTypes_AdvertisementMode_t;
 
-/// Defines the complete advertisement data of the SHT4x Demo Board
+/// Defines the complete advertisement data of the SHT3x Demo Board
 /// including temperature and humidity measurement values.
 typedef struct __attribute__((__packed__)) {
   uint8_t adTypeSize;                         ///< size type

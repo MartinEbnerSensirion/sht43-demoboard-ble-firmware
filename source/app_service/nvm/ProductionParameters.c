@@ -96,7 +96,7 @@ uint32_t ProductionParameters_GetUniqueDeviceId(void) {
 }
 
 const char* ProductionParameters_GetDeviceName(void) {
-  static const char deviceName[] = "SHT43 DB";
+  static const char deviceName[] = "SHT33 DB";
   return deviceName;
 }
 
