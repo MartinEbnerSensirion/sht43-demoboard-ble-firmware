@@ -130,7 +130,7 @@ static uint8_t _communicationBuffer[8];
 
 /// currently executing command
 /// will be set when the request arrives
-static uint8_t _command = 0xFF;
+static uint16_t _command = 0xFF;
 
 /// Sensor busy timer
 /// This timer will be started when asked for a notification
