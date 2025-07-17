@@ -105,7 +105,7 @@ static BleTypes_CompleteAdvertisementData_t gCompleteAdvData = {
     .adTypeManufacturerFlag = AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
     .companyIdentifier = BLE_TYPES_SENSIRION_VENDOR_ID,
     .sAdvT = 0x00,
-    .sampleType = 0x06,
+    .sampleType = 0x04, // SHT3x sample type
     .deviceIdLsb = 0xFF,
     .deviceIdMsb = 0xFF,
     .temperatureTicks = 0xFFFF,
@@ -125,7 +125,7 @@ static BleTypes_CompleteAdvertisementData_t gCompleteAdvData = {
 /// advertisement type when advertising normally as demo-board
 #define SHT_ADV_ADV_TYPE 0x00
 /// sample type when advertising normally as demo-board
-#define SHT_ADV_SAMPLE_TYPE 0x06
+#define SHT_ADV_SAMPLE_TYPE 0x04 // SHT3x sample type
 
 /// advertisement type when advertisement is disabled
 #define NO_ADV_ADV_TYPE 0xFF
