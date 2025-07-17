@@ -107,12 +107,12 @@ static const CommandMetaData_t _commandMetaData[] = {
     [SHT3X_COMMAND_LOW_REPEATABILITY_MEASUREMENT] =
         {.cmdId = 0x2416,
          .resultSize = 6,
-         .waitTimeMs = 2,
+         .waitTimeMs = 5,
          .evaluateCb = ExtractMeasurementValues},
     [SHT3X_COMMAND_HIGH_REPEATABILITY_MEASUREMENT] = {
         .cmdId = 0x2400,
         .resultSize = 6,
-        .waitTimeMs = 9,
+        .waitTimeMs = 16,
         .evaluateCb = ExtractMeasurementValues}};
 
 /// Pointer to the I2C type handler
@@ -165,8 +165,9 @@ void Sht3x_Init(MessageBroker_Broker_t* broker) {
 
 void Sht3x_StartRequest(Sht3x_Commands_t command) {
   _command = command;
-  _communicationBuffer[0] = _commandMetaData[command].cmdId;
-  I2c3_Write(SHT3X_DEVICE_ADDRESS, _communicationBuffer, 1, RequestCompleted);
+  _communicationBuffer[0] = _commandMetaData[command].cmdId >> 8;
+  _communicationBuffer[1] = _commandMetaData[command].cmdId;
+  I2c3_Write(SHT3X_DEVICE_ADDRESS, _communicationBuffer, 2, RequestCompleted);
 }
 
 void Sht3x_NotifySensorReady() {

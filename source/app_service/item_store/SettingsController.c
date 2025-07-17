@@ -59,7 +59,7 @@ typedef struct _tSettingsController {
 /// Default that is used to initialize the values in the flash
 static ItemStore_SystemConfig_t _defaultSettings = {
     .version = SETTINGS_VERSION,
-    .deviceName = "SHT3x DB",
+    .deviceName = "SHT43 DB",
     .isLogEnabled = false,
     .isAdvertiseDataEnabled = true,
     .loggingInterval = 600000};
