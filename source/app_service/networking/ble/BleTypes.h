@@ -56,7 +56,7 @@
 #define BLE_TYPES_SENSIRION_VENDOR_ID 0x06D5
 
 /// Name of the local name within the advertisement data
-#define BLE_TYPES_LOCAL_NAME_LENGTH 8
+#define BLE_TYPES_LOCAL_NAME_LENGTH 1
 
 /// Restricted manufacturer data length
 #define SHORT_MANUFACTURER_DATA_LENGTH 7
