@@ -61,8 +61,8 @@
 /// Restricted manufacturer data length
 #define SHORT_MANUFACTURER_DATA_LENGTH 7
 
-/// Full manufacturer data length; include 4 bytes of measurement data
-#define LONG_MANUFACTURER_DATA_LENGTH 11
+/// Full manufacturer data length; include 6 bytes of measurement data
+#define LONG_MANUFACTURER_DATA_LENGTH SHORT_MANUFACTURER_DATA_LENGTH + 3 * 2
 
 /// security parameters structure
 typedef struct _tSecurityParams {
@@ -142,6 +142,7 @@ typedef struct __attribute__((__packed__)) {
   uint8_t deviceIdLsb;                        ///< device id msb   (custom data)
   uint16_t temperatureTicks;                  ///< temperature     (custom data)
   uint16_t humidityTicks;                     ///< humidity        (custom data)
+  uint16_t co2Value;                          ///< CO2 value       (custom data)
 } BleTypes_CompleteAdvertisementData_t;
 
 /// global context containing the variables common to all services
