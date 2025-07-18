@@ -144,7 +144,8 @@ typedef struct _tItemStore_MeasurementSample {
   struct {
     uint16_t temperatureTicks;  ///< raw measurement value of temperature
     uint16_t humidityTicks;     ///< raw measurement value of humidity
-  } sample[2];                  ///< samples contained in this item
+    uint16_t co2Value;          ///< raw measurement value of CO2
+  } sample[1];                  ///< samples contained in this item
 } ItemStore_MeasurementSample_t;
 
 /// Summarize all possible item structures.

@@ -57,7 +57,7 @@ ItemStore_ItemStruct_t _testItemData[] = {
            .configuration.isAdvertiseDataEnabled = true,
            .configuration.deviceName = "test demo board name",
            .configuration.loggingInterval = 5000},
-    [1] = {.measurement.sample = {{0xABCD, 0x0123}, {0x4567, 0x89AB}}}};
+    [1] = {.measurement.sample = {{0xABCD, 0x0123, 0x4567}}}};
 
 /// Memory buffer to receive the data from the enumerator
 ItemStore_ItemStruct_t _testItemBuffer;

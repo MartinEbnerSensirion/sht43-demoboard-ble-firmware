@@ -211,6 +211,7 @@ static void ExtractMeasurementValues(const uint8_t* data,
   // Deserialize the measurement values
   message->data.measurement.temperatureTicks = (data[0] << 8) | data[1];
   message->data.measurement.humidityTicks = (data[3] << 8) | data[4];
+  message->data.measurement.co2Value = 1234;  // Placeholder for CO2 value
 }
 
 static bool CheckCrc(uint8_t nBytes) {

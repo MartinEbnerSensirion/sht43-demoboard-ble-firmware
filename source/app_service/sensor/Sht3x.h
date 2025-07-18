@@ -69,8 +69,9 @@ typedef struct _tSht3x_SensorMessage {
     struct {
       uint16_t temperatureTicks;  ///< measured temperature
       uint16_t humidityTicks;     ///< measured humidity
+      uint16_t co2Value;          ///< measured CO2 value
     } measurement;                ///< Sensor measurement values
-    uint32_t errorCode;           ///< number of the error if error occurred
+    uint16_t errorCode;           ///< number of the error if error occurred
   } data;  ///< The data needs to be interpreted depending on the message id in
            ///< head.id.
            ///< - id == SHT3X_MESSAGE_ID_REQUEST_SENT: data is invalid

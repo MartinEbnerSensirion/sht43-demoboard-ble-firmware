@@ -105,11 +105,12 @@ static BleTypes_CompleteAdvertisementData_t gCompleteAdvData = {
     .adTypeManufacturerFlag = AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
     .companyIdentifier = BLE_TYPES_SENSIRION_VENDOR_ID,
     .sAdvT = 0x00,
-    .sampleType = 0x04, // SHT3x sample type
+    .sampleType = 0x0A,  // MyCo2Gadget sample type
     .deviceIdLsb = 0xFF,
     .deviceIdMsb = 0xFF,
     .temperatureTicks = 0xFFFF,
     .humidityTicks = 0xFFFF,
+    .co2Value = 0xFFFF,
     .adTypeNameSize = 9,
     .adTypeNameFlag = AD_TYPE_COMPLETE_LOCAL_NAME,
     .name = "",  // will be initialized later on
@@ -125,7 +126,7 @@ static BleTypes_CompleteAdvertisementData_t gCompleteAdvData = {
 /// advertisement type when advertising normally as demo-board
 #define SHT_ADV_ADV_TYPE 0x00
 /// sample type when advertising normally as demo-board
-#define SHT_ADV_SAMPLE_TYPE 0x04 // SHT3x sample type
+#define SHT_ADV_SAMPLE_TYPE 0x0A  // MyCo2Gadget sample type
 
 /// advertisement type when advertisement is disabled
 #define NO_ADV_ADV_TYPE 0xFF
@@ -466,6 +467,7 @@ static bool BleDefaultStateCb(Message_Message_t* message) {
     gCompleteAdvData.temperatureTicks =
         sensorMsg->data.measurement.temperatureTicks;
     gCompleteAdvData.humidityTicks = sensorMsg->data.measurement.humidityTicks;
+    gCompleteAdvData.co2Value = sensorMsg->data.measurement.co2Value;
     /// this does not change the advertisement mode
     BleGap_AdvertiseRequest(&gBleApplicationContext,
                             gBleApplicationContext.currentAdvertisementMode);

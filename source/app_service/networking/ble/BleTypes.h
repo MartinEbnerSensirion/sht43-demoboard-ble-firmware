@@ -142,6 +142,7 @@ typedef struct __attribute__((__packed__)) {
   uint8_t deviceIdLsb;                        ///< device id msb   (custom data)
   uint16_t temperatureTicks;                  ///< temperature     (custom data)
   uint16_t humidityTicks;                     ///< humidity        (custom data)
+  uint16_t co2Value;                          ///< CO2 value       (custom data)
 } BleTypes_CompleteAdvertisementData_t;
 
 /// global context containing the variables common to all services

@@ -84,6 +84,8 @@ typedef struct _tMeasurementItemController {
   float humidityAverage;
   /// Moving average of temperature; same as for humidity
   float temperatureAverage;
+  /// Moving average of CO2; same as for humidity
+  float co2Average;
   /// Averaging coefficients
   /// coefficient[0] + coefficient[1] = 1.0
   float coefficient[2];
@@ -254,6 +256,11 @@ static void UpdateMovingAverage(Sht3x_SensorMessage_t* msg) {
           _measurementItemController.temperatureAverage +
       _measurementItemController.coefficient[1] *
           msg->data.measurement.temperatureTicks;
+  _measurementItemController.co2Average =
+      _measurementItemController.coefficient[0] *
+          _measurementItemController.co2Average +
+      _measurementItemController.coefficient[1] *
+          msg->data.measurement.co2Value;
 }
 
 static void EvalTimeEvent(Message_Message_t* msg, bool canAddItem) {
@@ -269,6 +276,9 @@ static void EvalTimeEvent(Message_Message_t* msg, bool canAddItem) {
         .sample[_measurementItemController.currentSampleIndex]
         .humidityTicks =
         (uint16_t)(_measurementItemController.humidityAverage + 0.5f);
+    _measurementItemController.samples
+        .sample[_measurementItemController.currentSampleIndex]
+        .co2Value = (uint16_t)(_measurementItemController.co2Average + 0.5f);
     _measurementItemController.currentSampleIndex =
         (_measurementItemController.currentSampleIndex + 1) % 2;
 
