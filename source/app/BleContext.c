@@ -111,7 +111,7 @@ static BleTypes_CompleteAdvertisementData_t gCompleteAdvData = {
     .temperatureTicks = 0xFFFF,
     .humidityTicks = 0xFFFF,
     .co2Value = 0x1234,
-    .adTypeNameSize = 1+1,
+    .adTypeNameSize = 1 + 1,
     .adTypeNameFlag = AD_TYPE_COMPLETE_LOCAL_NAME,
     .name = "",  // will be initialized later on
 };
